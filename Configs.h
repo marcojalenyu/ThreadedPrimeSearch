@@ -22,6 +22,9 @@ public:
 	static void setConfig(String config, String value);
 
 	static ThreadPrintVariation getThreadPrintVariation() { return sharedInstance->threadPrintVariation; }
+	static ThreadTaskDivision getThreadTaskDivision() { return sharedInstance->threadTaskDivision; }
+	static unsigned int getPrimeSearchLimit() { return sharedInstance->primeSearchLimit; }
+	static unsigned int getNumThreads() { return sharedInstance->numThreads; }
 
 private:
 	Configs() = default;
@@ -32,4 +35,6 @@ private:
 	ThreadTaskDivision threadTaskDivision;
 	unsigned int numThreads; // Number of threads to use
 	unsigned int primeSearchLimit; // Upper limit of prime search
+
+	friend class PrimeSearch;
 };

@@ -2,10 +2,7 @@
 
 Configs* Configs::getInstance()
 {
-	if (sharedInstance == nullptr)
-	{
-		sharedInstance = new Configs();
-	}
+	Configs::initialize();
 	return sharedInstance;
 }
 
