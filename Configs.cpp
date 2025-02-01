@@ -1,0 +1,118 @@
+#include "Configs.h"
+
+Configs* Configs::getInstance()
+{
+	if (sharedInstance == nullptr)
+	{
+		sharedInstance = new Configs();
+	}
+	return sharedInstance;
+}
+
+void Configs::initialize()
+{
+	if (sharedInstance == nullptr)
+	{
+		sharedInstance = new Configs();
+		sharedInstance->configure();
+	}
+}
+
+void Configs::destroy()
+{
+	if (sharedInstance != nullptr)
+	{
+		delete sharedInstance;
+		sharedInstance = nullptr;
+	}
+}
+
+void Configs::configure()
+{
+	setDefaultValues();
+	std::ifstream file("config.txt");
+	if (file.is_open())
+	{
+		String line;
+		while (std::getline(file, line))
+		{
+			// Each line is [config] [value]
+			String config = line.substr(0, line.find(' '));
+			String value = line.substr(line.find(' ') + 1);
+			setConfig(config, value);
+		}
+	}
+	else
+	{
+		std::cout << "Error opening file. Will set default." << std::endl;
+	}
+}
+
+void Configs::setDefaultValues()
+{
+	sharedInstance->threadPrintVariation = IMMEDIATE;
+	sharedInstance->threadTaskDivision = RANGE;
+	sharedInstance->numThreads = 1;
+	sharedInstance->primeSearchLimit = 100;
+}
+
+// Set from default to value specified (if valid)
+void Configs::setConfig(String config, String value)
+{
+	if (config == "threadPrintVariation")
+	{
+		if (value == "IMMEDIATE")
+		{
+			sharedInstance->threadPrintVariation = IMMEDIATE;
+		}
+		else if (value == "WAIT_ALL")
+		{
+			sharedInstance->threadPrintVariation = WAIT_ALL;
+		}
+		else
+		{
+			std::cout << "Invalid value for threadPrintVariation. Defaulting to IMMEDIATE." << std::endl;
+		}
+	}
+	else if (config == "threadTaskDivision")
+	{
+		if (value == "RANGE")
+		{
+			sharedInstance->threadTaskDivision = RANGE;
+		}
+		else if (value == "LINEAR")
+		{
+			sharedInstance->threadTaskDivision = LINEAR;
+		}
+		else
+		{
+			std::cout << "Invalid value for threadTaskDivision. Defaulting to RANGE." << std::endl;
+		}
+	}
+	else if (config == "x")
+	{
+		try
+		{
+			sharedInstance->numThreads = std::stoi(value);
+		}
+		catch (std::invalid_argument)
+		{
+			std::cout << "Invalid value for x. Defaulting to 1." << std::endl;
+		}
+	}
+	else if (config == "y")
+	{
+		try
+		{
+			sharedInstance->primeSearchLimit = std::stoi(value);
+		}
+		catch (std::invalid_argument)
+		{
+			std::cout << "Invalid value for y. Defaulting to 100." << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << "Invalid config." << std::endl;
+	}
+}

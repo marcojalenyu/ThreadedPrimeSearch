@@ -1,0 +1,4 @@
+threadPrintVariation IMMEDIATE
+threadTaskDivision RANGE
+x 1
+y 100
