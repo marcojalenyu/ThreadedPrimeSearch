@@ -4,13 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
+#include <chrono>
 
 using String = std::string;
 
 class Common
 {
 public:
+	static String getTimestamp();
 	static void printTimestamp();
 };
 
