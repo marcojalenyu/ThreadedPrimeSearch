@@ -131,11 +131,13 @@
   <ItemGroup>
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="Configs.cpp" />
+    <ClCompile Include="PrimeSearch.cpp" />
     <ClCompile Include="ThreadedPrimeSearch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
     <ClInclude Include="Configs.h" />
+    <ClInclude Include="PrimeSearch.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="config.txt" />
