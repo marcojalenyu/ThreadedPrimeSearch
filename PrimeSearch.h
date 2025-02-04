@@ -13,10 +13,12 @@ public:
 	PrimeSearch(unsigned int numThreads, unsigned int primeSearchLimit);
 
 	void start();
+	void startRangeSearch();
 	void rangeSearch(unsigned threadID, unsigned int start, unsigned int end); // Straight division of search range (e.g. 1-100, 101-200, 201-300)
+	void startLinearSearch();
 	void linearSearch(); // Each thread is for divisibility check of a single number
-	bool isPrime(unsigned int num);
-	bool hasDivisorsInRange(unsigned int num, unsigned int start, unsigned int end);
+	bool isPrimeInRange(unsigned int num, unsigned int start, unsigned int end);
+	void printPrimeNumbers();
 
 private:
 	unsigned int numThreads = 1;
