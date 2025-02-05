@@ -18,9 +18,7 @@ void PrimeSearch::start()
 		startRangeSearch();
 	}
 	else if (threadTaskDivision == LINEAR)
-	{
 		startLinearSearch();
-	}
 
 	if (threadPrintVariation == WAIT_ALL)
 	{
@@ -51,10 +49,13 @@ void PrimeSearch::startRangeSearch()
 	{
 		unsigned int start = threadID * range + 1;
 		unsigned int end = (threadID + 1) * range;
+
 		// To include the remaining numbers (if any) to the last thread
 		if (threadID == this->numThreads - 1) end = this->primeSearchLimit;
 
-		if (start <= this->primeSearchLimit) {
+		// To only make a thread if range is less than primeSearchLimit
+		if (start <= this->primeSearchLimit) 
+		{
 			threads.push_back(std::thread(&PrimeSearch::rangeSearch, this, threadID, start, end));
 		}
 	}
@@ -75,12 +76,11 @@ void PrimeSearch::rangeSearch(unsigned threadID, unsigned int start, unsigned in
 		{
 			if (Configs::getThreadPrintVariation() == IMMEDIATE)
 			{
-				std::lock_guard<std::mutex> guard(mutex_lock);
+				std::lock_guard<std::mutex> guard(mutexLock);
 				std::cout << Common::getTimestamp() << " - Thread " << threadID << " found prime : " << num << std::endl;
 			}
 			else if (Configs::getThreadPrintVariation() == WAIT_ALL)
 			{
-				std::lock_guard<std::mutex> guard(mutex_lock);
 				primeNumbers[num] = threadID;
 			}
 		}
@@ -93,33 +93,7 @@ void PrimeSearch::startLinearSearch()
 	{
 		// Store results of divisibility check in a shared vector
 		std::vector<bool> isPrime(this->numThreads, true);
-		std::vector<std::thread> threads;
-		// To create an equal range of divisors for each thread
-		unsigned int sqrtNum = sqrt(num);
-		unsigned int range = (sqrtNum + numThreads - 1) / this->numThreads;
-
-		for (unsigned int threadID = 0; threadID < this->numThreads; threadID++)
-		{
-			unsigned int start = threadID * range + 2;
-			unsigned int end = (threadID + 2) * range;
-			// To include the remaining divisors (if any) to the last thread
-			if (end > sqrtNum) end = sqrtNum;
-
-			// Only make a thread if range is less than sqrtNum
-			if (start <= sqrtNum) {
-				threads.push_back(std::thread([this, threadID, num, start, end, &isPrime]()
-					{
-						isPrime[threadID] = isPrimeInRange(num, start, end);
-					}
-				));
-			}
-		}
-
-		for (std::thread& thread : threads)
-		{
-			thread.join();
-		}
-		threads.clear();
+		this->linearSearch(num, isPrime);
 
 		if (std::find(isPrime.begin(), isPrime.end(), false) == isPrime.end())
 		{
@@ -129,16 +103,43 @@ void PrimeSearch::startLinearSearch()
 			}
 			else if (Configs::getThreadPrintVariation() == WAIT_ALL)
 			{
-				std::lock_guard<std::mutex> guard(mutex_lock);
 				primeNumbers[num] = 0;
 			}
 		}
 	}
 }
 
-void PrimeSearch::linearSearch()
+// Each thread checks divisibility of a single number
+void PrimeSearch::linearSearch(unsigned int num, std::vector<bool>& isPrime)
 {
+	// To create an equal range of divisors for each thread
+	std::vector<std::thread> threads;
+	unsigned int sqrtNum = sqrt(num);
+	unsigned int range = (sqrtNum + numThreads - 1) / this->numThreads;
 
+	for (unsigned int threadID = 0; threadID < this->numThreads; threadID++)
+	{
+		unsigned int start = threadID * range + 2;
+		unsigned int end = (threadID + 2) * range;
+		// To include the remaining divisors (if any) to the last thread
+		if (end > sqrtNum) end = sqrtNum;
+
+		// Only make a thread if range is less than sqrtNum
+		if (start <= sqrtNum) {
+			threads.push_back(std::thread([this, threadID, num, start, end, &isPrime]()
+				{
+					isPrime[threadID] = isPrimeInRange(num, start, end);
+				}
+			));
+		}
+	}
+
+	for (std::thread& thread : threads)
+	{
+		thread.join();
+	}
+
+	threads.clear();
 }
 
 void PrimeSearch::printPrimeNumbers()
