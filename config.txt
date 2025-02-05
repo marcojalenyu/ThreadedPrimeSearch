@@ -1,4 +1,4 @@
-threadPrintVariation WAIT_ALL
-threadTaskDivision LINEAR
-x 10000
+threadPrintVariation IMMEDIATE
+threadTaskDivision RANGE
+x 4
 y 1000

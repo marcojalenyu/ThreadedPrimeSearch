@@ -51,7 +51,7 @@ void Configs::setDefaultValues()
 {
 	sharedInstance->threadPrintVariation = IMMEDIATE;
 	sharedInstance->threadTaskDivision = RANGE;
-	sharedInstance->numThreads = 1;
+	sharedInstance->numThreads = 4;
 	sharedInstance->primeSearchLimit = 100;
 }
 
