@@ -14,16 +14,12 @@ void PrimeSearch::start()
 
 	// Different task division schemes
 	if (threadTaskDivision == RANGE)
-	{
-		startRangeSearch();
-	}
+		this->startRangeSearch();
 	else if (threadTaskDivision == LINEAR)
-		startLinearSearch();
+		this->startLinearSearch();
 
 	if (threadPrintVariation == WAIT_ALL)
-	{
 		this->printPrimeNumbers();
-	}
 
 	Common::printTimestamp();
 }
@@ -68,7 +64,7 @@ void PrimeSearch::rangeSearch(unsigned threadID, unsigned int start, unsigned in
 	for (unsigned int num = start; num <= end; num++)
 	{
 		// Check only up to square root of num for optimization
-		if (isPrimeInRange(num, 2, sqrt(num)))
+		if (isPrimeInRange(num, 2, (int) sqrt(num)))
 		{
 			if (Configs::getThreadPrintVariation() == IMMEDIATE)
 			{
@@ -77,7 +73,7 @@ void PrimeSearch::rangeSearch(unsigned threadID, unsigned int start, unsigned in
 			}
 			else if (Configs::getThreadPrintVariation() == WAIT_ALL)
 			{
-				primeNumbers[num] = threadID;
+				primeNumbers[num] = std::make_pair(threadID, Common::getTimestamp());
 			}
 		}
 	}
@@ -96,11 +92,11 @@ void PrimeSearch::startLinearSearch()
 		{
 			if (Configs::getThreadPrintVariation() == IMMEDIATE)
 			{
-				std::cout << Common::getTimestamp() << " - Prime Number found : " << num << " by Thread " << lastThreadUsed << std::endl;
+				std::cout << Common::getTimestamp() << " - Thread " << lastThreadUsed << " found prime : " << num << std::endl;
 			}
 			else if (Configs::getThreadPrintVariation() == WAIT_ALL)
 			{
-				primeNumbers[num] = lastThreadUsed;
+				primeNumbers[num] = std::make_pair(lastThreadUsed.load(), Common::getTimestamp());
 			}
 		}
 	}
@@ -110,7 +106,7 @@ void PrimeSearch::startLinearSearch()
 void PrimeSearch::linearSearch(unsigned int num, std::vector<bool>& isPrime, std::atomic<unsigned int>& lastThreadUsed)
 {
 	std::vector<std::thread> threads;
-	unsigned int sqrtNum = sqrt(num);
+	unsigned int sqrtNum = (int) sqrt(num);
 	// To ensure no extra threads are created (1 thread : 1+ divisors)
 	unsigned int threadsUsed = this->numThreads < sqrtNum ? this->numThreads : sqrtNum;
 	// To create an equal range of divisors for each thread
@@ -146,6 +142,9 @@ void PrimeSearch::printPrimeNumbers()
 {
 	for (auto const& prime : primeNumbers)
 	{
-		std::cout << "Prime Number " << prime.first << " found by Thread " << prime.second << std::endl;
+		unsigned int primeNum = prime.first;
+		unsigned int threadID = prime.second.first;
+		String timestamp = prime.second.second;
+		std::cout << timestamp << " - Thread " << threadID << " found prime : " << primeNum << std::endl;
 	}
 }

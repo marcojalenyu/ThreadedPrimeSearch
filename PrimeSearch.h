@@ -21,10 +21,10 @@ public:
 	void printPrimeNumbers();
 
 private:
-	unsigned int numThreads = 1;
-	unsigned int primeSearchLimit = 100;
+	unsigned int numThreads;
+	unsigned int primeSearchLimit;
 	std::mutex mutexLock;
-	// Key: prime number, Value: thread ID that found the prime, for WAIT_ALL print
-	std::map<unsigned int, unsigned int> primeNumbers;
+	// Key: prime number, Value: thread ID of last thread that found the prime & timestamp
+	std::map<unsigned int, std::pair<unsigned int, String>> primeNumbers;
 };
 

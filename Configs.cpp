@@ -24,8 +24,10 @@ void Configs::destroy()
 	}
 }
 
+// Get values from config.txt and set them
 void Configs::configure()
 {
+	// Only change values if they are valid
 	setDefaultValues();
 	std::ifstream file("config.txt");
 	if (file.is_open())
