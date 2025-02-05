@@ -132,7 +132,7 @@
     <ClCompile Include="Common.cpp" />
     <ClCompile Include="Configs.cpp" />
     <ClCompile Include="PrimeSearch.cpp" />
-    <ClCompile Include="ThreadedPrimeSearch.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />

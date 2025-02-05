@@ -1,4 +1,4 @@
 threadPrintVariation WAIT_ALL
 threadTaskDivision LINEAR
-x 4
+x 10000
 y 1000

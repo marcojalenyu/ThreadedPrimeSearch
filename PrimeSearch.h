@@ -16,7 +16,7 @@ public:
 	void startRangeSearch();
 	void rangeSearch(unsigned threadID, unsigned int start, unsigned int end); // Straight division of search range (e.g. 1-100, 101-200, 201-300)
 	void startLinearSearch();
-	void linearSearch(unsigned int num, std::vector<bool>& isPrime); // Each thread is for divisibility check of a single number
+	void linearSearch(unsigned int num, std::vector<bool>& isPrime, std::atomic<unsigned int>& lastThreadUsed); // Each thread is for divisibility check of a single number
 	bool isPrimeInRange(unsigned int num, unsigned int start, unsigned int end);
 	void printPrimeNumbers();
 

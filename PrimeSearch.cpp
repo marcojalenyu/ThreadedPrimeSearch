@@ -42,22 +42,18 @@ bool PrimeSearch::isPrimeInRange(unsigned int num, unsigned int start, unsigned 
 
 void PrimeSearch::startRangeSearch()
 {
-	// To create an equal range for each thread
 	std::vector<std::thread> threads;
-	unsigned int range = this->primeSearchLimit / this->numThreads;
-	for (unsigned int threadID = 0; threadID < this->numThreads; threadID++)
+	// To ensure no extra threads are created (1 thread : 1+ numbers)
+	unsigned int threadsUsed = this->primeSearchLimit < this->numThreads ? this->primeSearchLimit : this->numThreads;
+	// To create an equal range for each thread
+	unsigned int range = this->primeSearchLimit / threadsUsed;
+	for (unsigned int threadID = 0; threadID < threadsUsed; threadID++)
 	{
 		unsigned int start = threadID * range + 1;
 		unsigned int end = (threadID + 1) * range;
-
 		// To include the remaining numbers (if any) to the last thread
-		if (threadID == this->numThreads - 1) end = this->primeSearchLimit;
-
-		// To only make a thread if range is less than primeSearchLimit
-		if (start <= this->primeSearchLimit) 
-		{
-			threads.push_back(std::thread(&PrimeSearch::rangeSearch, this, threadID, start, end));
-		}
+		if (threadID == threadsUsed - 1) end = this->primeSearchLimit;
+		threads.push_back(std::thread(&PrimeSearch::rangeSearch, this, threadID, start, end));
 	}
 
 	for (std::thread& thread : threads)
@@ -91,33 +87,36 @@ void PrimeSearch::startLinearSearch()
 {
 	for (unsigned int num = 1; num <= this->primeSearchLimit; num++)
 	{
+		std::atomic<unsigned int> lastThreadUsed(0);
 		// Store results of divisibility check in a shared vector
 		std::vector<bool> isPrime(this->numThreads, true);
-		this->linearSearch(num, isPrime);
+		this->linearSearch(num, isPrime, lastThreadUsed);
 
 		if (std::find(isPrime.begin(), isPrime.end(), false) == isPrime.end())
 		{
 			if (Configs::getThreadPrintVariation() == IMMEDIATE)
 			{
-				std::cout << Common::getTimestamp() << " - Prime Number found : " << num << std::endl;
+				std::cout << Common::getTimestamp() << " - Prime Number found : " << num << " by Thread " << lastThreadUsed << std::endl;
 			}
 			else if (Configs::getThreadPrintVariation() == WAIT_ALL)
 			{
-				primeNumbers[num] = 0;
+				primeNumbers[num] = lastThreadUsed;
 			}
 		}
 	}
 }
 
 // Each thread checks divisibility of a single number
-void PrimeSearch::linearSearch(unsigned int num, std::vector<bool>& isPrime)
+void PrimeSearch::linearSearch(unsigned int num, std::vector<bool>& isPrime, std::atomic<unsigned int>& lastThreadUsed)
 {
-	// To create an equal range of divisors for each thread
 	std::vector<std::thread> threads;
 	unsigned int sqrtNum = sqrt(num);
-	unsigned int range = (sqrtNum + numThreads - 1) / this->numThreads;
+	// To ensure no extra threads are created (1 thread : 1+ divisors)
+	unsigned int threadsUsed = this->numThreads < sqrtNum ? this->numThreads : sqrtNum;
+	// To create an equal range of divisors for each thread
+	unsigned int range = (sqrtNum + threadsUsed - 1) / threadsUsed;
 
-	for (unsigned int threadID = 0; threadID < this->numThreads; threadID++)
+	for (unsigned int threadID = 0; threadID < threadsUsed; threadID++)
 	{
 		unsigned int start = threadID * range + 2;
 		unsigned int end = (threadID + 2) * range;
@@ -126,9 +125,10 @@ void PrimeSearch::linearSearch(unsigned int num, std::vector<bool>& isPrime)
 
 		// Only make a thread if range is less than sqrtNum
 		if (start <= sqrtNum) {
-			threads.push_back(std::thread([this, threadID, num, start, end, &isPrime]()
+			threads.push_back(std::thread([this, threadID, num, start, end, &isPrime, &lastThreadUsed]()
 				{
 					isPrime[threadID] = isPrimeInRange(num, start, end);
+					lastThreadUsed = threadID;
 				}
 			));
 		}
@@ -146,13 +146,6 @@ void PrimeSearch::printPrimeNumbers()
 {
 	for (auto const& prime : primeNumbers)
 	{
-		if (Configs::getThreadTaskDivision() == LINEAR)
-		{
-			std::cout << "Prime Number " << prime.first << " found" << std::endl;
-		}
-		else if (Configs::getThreadTaskDivision() == RANGE)
-		{
-			std::cout << "Prime Number " << prime.first << " found by Thread " << prime.second << std::endl;
-		}
+		std::cout << "Prime Number " << prime.first << " found by Thread " << prime.second << std::endl;
 	}
 }

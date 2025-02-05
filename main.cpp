@@ -5,7 +5,6 @@
 int main()
 {
 	Configs* configs = Configs::getInstance();
-
 	PrimeSearch primeSearch(configs->getNumThreads(), configs->getPrimeSearchLimit());
 	primeSearch.start();
 	std::cout << "Prime Search Completed. Enter to exit: ";
