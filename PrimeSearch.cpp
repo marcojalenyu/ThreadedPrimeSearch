@@ -73,6 +73,7 @@ void PrimeSearch::rangeSearch(unsigned threadID, unsigned int start, unsigned in
 			}
 			else if (Configs::getThreadPrintVariation() == WAIT_ALL)
 			{
+				std::lock_guard<std::mutex> guard(mutexLock);
 				primeNumbers[num] = std::make_pair(threadID, Common::getTimestamp());
 			}
 		}
