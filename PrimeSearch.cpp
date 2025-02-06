@@ -27,8 +27,9 @@ void PrimeSearch::start()
 // Check if num is prime from divisor range [start, end]
 bool PrimeSearch::isPrimeInRange(unsigned int num, unsigned int start, unsigned int end)
 {
-	// 4 is the smallest composite number
-	if (num <= 3) return true;
+	// 0 and 1 are not prime, 4 is the smallest composite
+	if (num < 2) return false;
+	if (num < 4) return true;
 	for (unsigned int divisor = start; divisor <= end; divisor++)
 	{
 		if (num % divisor == 0) return false;
@@ -82,7 +83,8 @@ void PrimeSearch::rangeSearch(unsigned threadID, unsigned int start, unsigned in
 
 void PrimeSearch::startLinearSearch()
 {
-	for (unsigned int num = 1; num <= this->primeSearchLimit; num++)
+	// Start from 2 since 0 and 1 are not prime numbers
+	for (unsigned int num = 2; num <= this->primeSearchLimit; num++)
 	{
 		std::atomic<unsigned int> lastThreadUsed(0);
 		// Store results of divisibility check in a shared vector
