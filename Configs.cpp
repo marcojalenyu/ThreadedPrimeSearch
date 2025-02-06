@@ -92,22 +92,46 @@ void Configs::setConfig(String config, String value)
 	{
 		try
 		{
-			sharedInstance->numThreads = std::stoi(value);
+			int x = std::stoi(value);
+			if (x > 0)
+			{
+				sharedInstance->numThreads = x;
+			}
+			else
+			{
+				std::cout << "Invalid value for x. Defaulting to 4." << std::endl;
+			}
 		}
 		catch (std::invalid_argument)
 		{
-			std::cout << "Invalid value for x. Defaulting to 1." << std::endl;
+			std::cout << "Invalid value for x. Defaulting to 4." << std::endl;
+		}
+		catch (std::out_of_range)
+		{
+			std::cout << "x is out of range. Defaulting to 4." << std::endl;
 		}
 	}
 	else if (config == "y")
 	{
 		try
 		{
-			sharedInstance->primeSearchLimit = std::stoi(value);
+			int y = std::stoi(value);
+			if (y > 0)
+			{
+				sharedInstance->primeSearchLimit = y;
+			}
+			else
+			{
+				std::cout << "Invalid value for y. Defaulting to 100." << std::endl;
+			}
 		}
 		catch (std::invalid_argument)
 		{
 			std::cout << "Invalid value for y. Defaulting to 100." << std::endl;
+		}
+		catch (std::out_of_range)
+		{
+			std::cout << "y is out of range. Defaulting to 100." << std::endl;
 		}
 	}
 	else
