@@ -10,7 +10,7 @@ String Common::getTimestamp()
 	localtime_s(&timeInfo, &now_c); // Thread-safe version of localtime
 
     std::ostringstream oss;
-	// Format: YYYY MM DD HH:MM:SS.mmm
+	// Format: YYYY MM DD HH:MM:SS.mmmmmmmmm (nanoseconds)
 	oss << std::put_time(&timeInfo, "%Y %m %d %H:%M:%S") 
         << '.' 
         << std::setfill('0') 
